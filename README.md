@@ -1,2 +1,2 @@
 # Numerical-Methods
-Numerical Methods practicum III sem
+Numerical Methods practicum III sem. Task №1.
