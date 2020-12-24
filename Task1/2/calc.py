@@ -1,10 +1,6 @@
 import numpy as np
 
-MAX_ITERATION = 100000
-
-
-def get_next_1(B, c, x):
-    return np.dot(B, x) + c
+MAX_ITERATION = 1000000000
 
 
 def get_next(A, F, w, prev):
@@ -65,7 +61,7 @@ def solve(A, F, eps):
 
     while accuracy >= eps:
         if i == MAX_ITERATION:
-            print("Сходиться очень медленно i = ", i)
+            print("Slow convergence i = ", i)
             break
 
         x = get_next(A, F, w, x)
