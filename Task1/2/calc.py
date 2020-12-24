@@ -1,10 +1,26 @@
 import numpy as np
 
-MAX_ITERATION = 1000000000
+MAX_ITERATION = 100000
 
 
-def get_next(B, c, x):
+def get_next_1(B, c, x):
     return np.dot(B, x) + c
+
+
+def get_next(A, F, w, prev):
+    next = np.empty((prev.size))
+
+    for i in range(prev.size):
+        sum1 = 0.0
+
+        for j in range(i):
+            sum1 += A[i][j] / A[i][i] * next[j]
+
+        sum2 = 0.0
+        for j in range(i, prev.size):
+            sum2 += A[i][j] / A[i][i] * prev[j]
+        next[i] = prev[i] + w * (F[i] / A[i][i] - sum1 - sum2)
+    return next
 
 
 def criteria(B):
@@ -19,8 +35,10 @@ def get_converging_linear_system(A, F):
     A = np.copy(A)
     F = np.copy(F)
 
-    F = np.dot(A.transpose(), F)
-    A = np.dot(A.transpose(), A)
+    B = A.transpose()
+
+    F = np.dot(B, F)
+    A = np.dot(B, A)
 
     return A, F
 
@@ -36,18 +54,7 @@ def solve(A, F, eps):
 
     A, F = get_converging_linear_system(A, F)
 
-    A_diag  = np.diag(np.diag(A))
-    A_lower = np.tril(A) - A_diag
-    A_upper = np.triu(A) - A_diag
-
-    B = -np.dot(np.linalg.inv(1 / w * A_diag + A_lower),
-                (1 - 1 / w) * A_diag + A_upper)
-    c = np.dot(np.linalg.inv(1 / w * A_diag + A_lower), F)
-
     x = np.zeros(F.size)
-
-    if not criteria(B):
-        raise Exception("Criteria wrong!")
 
     norm_reversed_A = np.linalg.norm(np.linalg.inv(A))
 
@@ -61,7 +68,7 @@ def solve(A, F, eps):
             print("Сходиться очень медленно i = ", i)
             break
 
-        x = get_next(B, c, x)
+        x = get_next(A, F, w, x)
         residual = np.dot(A, x) - F
         accuracy = norm_reversed_A * np.linalg.norm(residual)
 
